@@ -1,0 +1,93 @@
+\documentclass[a4paper,11pt]{article}
+
+%\usepackage[showframe]{geometry} %use this if you want to check margins
+\usepackage{geometry}
+\geometry{centering,total={160mm,250mm},includeheadfoot}
+
+%auxiliairy files
+\input{../common/header.tex} %usepackage and configurations
+\input{../common/cmds.tex} %user defined commands
+
+%title
+\newcommand{\doctitle}{SSD \& WS}
+\newcommand{\docsubtitle}{Homework : rainbow attack}
+\newcommand{\tdyear}{2023 - 2024}
+\author{R. Absil}
+
+%language input
+\lstset{language=c++,
+		morekeywords={constexpr,nullptr}}
+
+\newcommand{\deadlinesubscription}{October 8 at 23h59}
+\newcommand{\deadline}{October 15 at 23h59}
+\newcommand{\teachers}{\texttt{rabsil}}
+\newcommand{\composition}{in groups of 3 to 5 students}
+
+%language={[x86masm]Assembler}
+%language=c++, morekeywords={constexpr,nullptr}
+%language=Java
+
+\begin{document}
+\pagestyle{fancy} %displays custom headers and footers
+
+\maketitle
+
+The objective of this group (3-5 students) homework is to implement an attack on password tables with a rainbow table. The deadline is set on \deadline.
+
+\section*{Minimal objectives}
+
+From a table of passwords stored as pairs ``(login,hash)'' with the help of some cryptographic function $H$, you must implement a rainbow attack.
+
+For academic reasons (mainly simplicity),
+\begin{itemize}
+\item passwords are \emph{not} salted,
+\item passwords are stored after a single pass through the hash function,
+\item passwords are alphanumeric with length\footnote{You are allowed to build a rainbow table per password length, for simplicity reasons.} at least 6 and at most 10,
+\item the hash function $H$ is SHA-256.\\
+\end{itemize}
+
+The choice of language is left to your discretion (but that choice is your responsibility). Should you use custom libraries, their code \emph{must} be open-source.
+
+Please note that you must at least submit two scripts:
+\begin{itemize}
+\item a preprocessing script allowing to generate a ``sufficiently large''\footnote{The user can decide what is ``sufficiently large''.} rainbow table $RT$,
+\item an attack script allowing to exploit $RT$ in order to find passwords from their hashes.% in the password table $T$,
+%\item a \texttt{README} file explaining the set of commands necessary to compile and run your scripts, as well as installing missing third party libraries.
+\end{itemize}
+In \emph{no way} you are allowed to submit the rainbow table $RT$, which can be quite large.
+
+Should you find it useful\footnote{Check the input/output modalities in the last Section.}, two scripts are provided for you:
+\begin{itemize}
+\item \texttt{gen-passwd}, generating passwords accepted by the policy, storing them in one text file, and their hashes in another file,
+\item \texttt{check-passwd}, checking whether passwords stored in one file match hashes stored in another file.
+\end{itemize}
+You can compile them using the commands
+\begin{lstlisting}
+g++ -o gen-passwd -std=XXX random.hpp sha256.cpp gen-passwd.cpp passwd-utils.hpp
+g++ -o check-passwd -std=XXX random.hpp sha256.cpp check-passwd.cpp passwd-utils.hpp
+\end{lstlisting}
+where \texttt{XXX} is assumed to refer at least \texttt{c++17}. Running these programs without command line arguments will provide further information about how to use them.
+
+You will also find an implementation of a thread pool\footnote{I suspect my implementation is vulnerable to spurious wakeups. That shouldn't be a problem.} should you find it useful\footnote{It is unlikely that you will meet the efficiency requirements detailed later without multithreading.}, as well as an open source \texttt{C++} implementation of SHA-256. A \texttt{main} file also shows how to use this implementation.
+
+\section*{Submission modalities}
+
+\defaultsubmission
+
+Furthermore, your attack script
+\begin{itemize}
+\item must allow to input hashes stored in a ASCII-encoded text file, one hash per line (the last line being blank), written as a base-16 string;
+\item must output a text file with the cracked passwords (that is, the passwords that match the input hashes), one password per line (the last line being blank). The passwords that could not be cracked have to be replaced with a line only containing the character '?'.
+\end{itemize}
+
+Note that these above conditions are necessary but clearly not sufficient to get 10/20. To increase your chances of successfully complete this homework, I would strongly advise
+\begin{itemize}
+\item to be able to generate a sufficiently large rainbow table under one night of user time on a laptop\savefootnote{fn:no-power}{That is, you cannot reasonably assume I have a computing cluster at my disposal, nor that my machine will behave fairly if you load computations on the GPU.},
+\item not to generate a rainbow table bigger than 12 GB,
+\item to be able to successfully crack $50$\% of a set of hashes ($\simeq$ 100) provided as a text file\footnote{Recall that passwords are alphanumeric (lower and upper case) with length at least 6 and at most 10, are stored unsalted after a single pass to the SHA-256 hash function.} under 45min of CPU time on a laptop\repeatfootnote{fn:no-power}.\\
+\end{itemize}
+
+It is forbidden to cry and forbidden to laugh.
+
+\end{document}
+
